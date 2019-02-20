@@ -5,13 +5,14 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class Annotation {
-    
+	
 	private List<Tag> tags;
 	
 	@JsonProperty("id_sound")
 	private String idSound;
 	
 	private String author;
+	
 	
 	public List<Tag> getTags() {
 		return tags;

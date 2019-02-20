@@ -1,0 +1,11 @@
+# postgresql configuration
+postgresql.ip=193.55.163.218
+postgresql.port=5432
+postgresql.db=sound
+postgresql.user=usersound
+postgresql.password=sound
+postgresql.tablename.tags=tags
+postgresql.tablename.tagsperso=tagsperso
+postgresql.tablename.users=users
+postgresql.tablename.soundfiles=soundfiles
+postgresql.tablename.annotations=annotations

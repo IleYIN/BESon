@@ -11,7 +11,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import fr.ensma.a3.ia.be.dao.TagAnnoDAO;
+import fr.ensma.ia.soundservice.tao.ITagAnnoDAO;
+import fr.ensma.ia.soundservice.tao.TagAnnoDAO;
 import fr.ensma.ia.soundservice.to.Annotation;
 import fr.ensma.ia.soundservice.to.Sound;
 import fr.ensma.ia.soundservice.to.Tag;
@@ -19,17 +20,14 @@ import fr.ensma.ia.soundservice.to.Tag;
 @Path("/")
 public class SoundService {
     
+	
     @POST
     @Path("/annotation")
     @Consumes(MediaType.APPLICATION_JSON)
     public Response addAnnotation(Annotation a) {
     	// TODO: add the annotation to the database
-    	
-    	
-    	
-    	
-    	TagAnnoDAO tanndao = new TagAnnoDAO();
-    	
+    	ITagAnnoDAO tagAnnoDao = TagAnnoDAO.getInstance();
+    	tagAnnoDao.addTagAnnotation(a);
     	
     	System.out.println("Nouvelle annotation de la part de " + a.getAuthor());
         return Response.ok().build();

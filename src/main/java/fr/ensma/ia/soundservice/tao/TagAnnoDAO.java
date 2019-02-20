@@ -1,4 +1,4 @@
-package fr.ensma.ia.soundservice.to;
+package fr.ensma.ia.soundservice.tao;
 
 
 import java.sql.Connection;
@@ -6,20 +6,22 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
 import org.aeonbits.owner.ConfigCache;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-
+import fr.ensma.ia.soundservice.to.Annotation;
+import fr.ensma.ia.soundservice.to.Tag;
 import fr.ensma.ia.soundservice.util.JDBCUtil;
 import fr.ensma.ia.soundservice.util.ServerConfig;
 
-public class TagAnnoDAO {
-
+public class TagAnnoDAO implements ITagAnnoDAO {
+	private static TagAnnoDAO dao;
+	
 	private static final Logger logger = LogManager.getLogger(TagAnnoDAO.class);
 	private static fr.ensma.ia.soundservice.util.ServerConfig cfg = ConfigCache.getOrCreate(ServerConfig.class);
 
@@ -34,13 +36,22 @@ public class TagAnnoDAO {
 	private Statement st = null;
 	private ResultSet rs = null;
 	
+	public static ITagAnnoDAO getInstance() {
+		if (dao == null) {
+			dao = new TagAnnoDAO();
+		}
+		return dao;
+	}
+	
 	public TagAnnoDAO() {
+		
 		tableAnnoName = cfg.pgTableAnnotations();
 		tableTagPersoName = cfg.pgTableTagsPerso();
 		tableTagsName = cfg.pgTableTags();
 		
 	}
 	
+	@Override
 	public void addTagAnnotation(Annotation tann) {
 		
 		
@@ -62,12 +73,12 @@ public class TagAnnoDAO {
 					} else {
 						ps = conn.prepareStatement("insert into "+tableAnnoName+" (date,tag,author,sound) values(?,?,?,?);");
 					}
-					ps.setObject(1, new Date());
+					ps.setObject(1, new Date(), Types.TIMESTAMP);
 					ps.setObject(2, tag.getName());
 					ps.setObject(3, tann.getAuthor());
 					ps.setObject(4, tann.getIdSound());
 					ps.execute();
-					logger.debug(tann.toString() + "(tag:"+ tag + ") has been inserted into "+ tableAnnoName);
+					logger.debug(tann.toString() + "(tag:"+ tag.toString() + ") has been inserted into "+ tableAnnoName);
 					
 				} catch (SQLException e) {
 					logger.error("could not insert "+tann.toString()+" into "+tableAnnoName, e);
