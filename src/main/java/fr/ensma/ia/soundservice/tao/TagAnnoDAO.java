@@ -21,50 +21,50 @@ import fr.ensma.ia.soundservice.util.ServerConfig;
 
 public class TagAnnoDAO implements ITagAnnoDAO {
 	private static TagAnnoDAO dao;
-	
+
 	private static final Logger logger = LogManager.getLogger(TagAnnoDAO.class);
 	private static fr.ensma.ia.soundservice.util.ServerConfig cfg = ConfigCache.getOrCreate(ServerConfig.class);
 
-	
+
 	private final String tableAnnoName;
 	private final String tableTagPersoName;
 	private final String tableTagsName;
-	
-	
+
+
 	private Connection conn = null;
 	private PreparedStatement ps = null;
 	private Statement st = null;
 	private ResultSet rs = null;
-	
+
 	public static ITagAnnoDAO getInstance() {
 		if (dao == null) {
 			dao = new TagAnnoDAO();
 		}
 		return dao;
 	}
-	
+
 	public TagAnnoDAO() {
-		
+
 		tableAnnoName = cfg.pgTableAnnotations();
 		tableTagPersoName = cfg.pgTableTagsPerso();
 		tableTagsName = cfg.pgTableTags();
-		
+
 	}
-	
+
 	@Override
 	public void addTagAnnotation(Annotation tann) {
-		
-		
+
+
 		List<Tag> listTags = tann.getTags();
 		if(listTags==null||listTags.isEmpty()) {
 			logger.info("listTags is null, couldn't add Tag or Annotation");
 			return;
 		} else {
 			conn = JDBCUtil.getPostgreConn();
-			
+
 			//insert into TagPerso
 			List<Tag> listTagPerso = getAndAddTagPerso(tann.getTags());
-			
+
 			//insert into annotation
 			for(Tag tag : tann.getTags()) {
 				try {
@@ -79,7 +79,7 @@ public class TagAnnoDAO implements ITagAnnoDAO {
 					ps.setObject(4, tann.getIdSound());
 					ps.execute();
 					logger.debug(tann.toString() + "(tag:"+ tag.toString() + ") has been inserted into "+ tableAnnoName);
-					
+
 				} catch (SQLException e) {
 					logger.error("could not insert "+tann.toString()+" into "+tableAnnoName, e);
 				} finally {
@@ -88,21 +88,21 @@ public class TagAnnoDAO implements ITagAnnoDAO {
 			} 
 			JDBCUtil.close(conn);
 		}
-		
+
 	}
 
 
 	private List<Tag> getAndAddTagPerso(List<Tag> list) {
 
 		if(list!=null && !list.isEmpty()) {
-			
+
 			List<Tag> listIdTagPerso = new ArrayList<Tag>();
-			
+
 			for(Tag tag : list) {
-				
+
 				try {
 					st = conn.createStatement();
-					
+
 					//check if the tag exists in the table Tags
 					String query = "select coalesce((select id_tag from "+tableTagsName+" where id_tag='"+tag.getName()+"'),'empty') as tags_exist;";
 					rs = st.executeQuery(query);
@@ -110,7 +110,7 @@ public class TagAnnoDAO implements ITagAnnoDAO {
 					while(rs.next()) {
 						tagsExist = (String) rs.getObject("tags_exist");
 					}
-					
+
 					if(tagsExist==null||tagsExist.equals("empty")) {
 						//add TagsPerso dans la table Tagsperso
 						addTagsPers(tag);
@@ -118,49 +118,51 @@ public class TagAnnoDAO implements ITagAnnoDAO {
 					} else {
 						logger.debug(tag.toString()+" already exists in the table "+tableTagsName);
 					}
-					
+
 				} catch (SQLException e) {
 					logger.error(e);
-					
+
 				} finally {
 					JDBCUtil.close(rs,st);
 				}
 			}
-			
+
 			return listIdTagPerso;
 		} else {
 			logger.info("list tag is null or empty");
 			return null;
 		}
 	}
-	
-	
+
+
 
 
 	private void addTagsPers(Tag tag) {
-		
+		Statement st2 = null;
+		ResultSet rs2 = null;
+		PreparedStatement ps2 = null;
 		try {
-			Statement st2 = conn.createStatement();
+			st2 = conn.createStatement();
 			String query = "select coalesce((select id_tag from "+tableTagPersoName+" where id_tag='"+tag.getName()+"'),'empty') as tags_exist;";
-			ResultSet rs2 = st2.executeQuery(query);
-			
+			rs2 = st2.executeQuery(query);
+
 			String tagsExist = null;
 			while(rs2.next()) {
 				tagsExist = (String) rs2.getObject("tags_exist");
 			}
-			
+		
 			if(tagsExist==null||tagsExist.equals("empty")) {
-				ps = conn.prepareStatement("insert into "+tableTagPersoName+"  (id_tag) values(?);");
-				ps.setObject(1, tag.getName());
-				ps.execute();
+				ps2 = conn.prepareStatement("insert into "+tableTagPersoName+"  (id_tag) values(?);");
+				ps2.setObject(1, tag.getName());
+				ps2.execute();
 				logger.debug(tag.toString() + " has been inserted into "+tableTagPersoName);
-				JDBCUtil.close(ps);
 			}
 
 		} catch (SQLException e) {
 			logger.error("could not insert "+tag.toString()+" into "+tableTagPersoName, e);
 		} finally {
-			JDBCUtil.close(rs, st);
+			JDBCUtil.close(ps2);
+			JDBCUtil.close(rs2, st2);
 		}
 	}
 
