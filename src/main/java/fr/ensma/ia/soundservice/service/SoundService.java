@@ -10,6 +10,9 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import fr.ensma.ia.soundservice.tao.ISoundDAO;
 import fr.ensma.ia.soundservice.tao.ITagAnnoDAO;
 import fr.ensma.ia.soundservice.tao.SoundDAO;
@@ -20,6 +23,7 @@ import fr.ensma.ia.soundservice.to.Sound;
 @Path("/")
 public class SoundService {
     
+	private static final Logger logger = LogManager.getLogger(SoundService.class);
 	
     @POST
     @Path("/annotation")
@@ -29,7 +33,7 @@ public class SoundService {
     	ITagAnnoDAO tagAnnoDao = TagAnnoDAO.getInstance();
     	tagAnnoDao.addTagAnnotation(a);
     	
-    	System.out.println("Nouvelle annotation de la part de " + a.getAuthor());
+    	logger.info("Nouvelle annotation de la part de " + a.getAuthor());
         return Response.ok().build();
     }
     
@@ -51,6 +55,7 @@ public class SoundService {
 //    	sounds.add(new Sound("son2.wav", "./sound/son2.wav"));
 //    	return sounds;
     	ISoundDAO soundDao = SoundDAO.getInstance();
+    	logger.info("Get sounds from the server");
     	return soundDao.getListSound();
     }
 }
