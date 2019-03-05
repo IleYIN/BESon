@@ -62,7 +62,7 @@ public class TagAnnoDAO implements ITagAnnoDAO {
 		} else {
 			conn = JDBCUtil.getPostgreConn();
 
-			//insert into TagPerso
+			//get tagperso and insert into TagPerso
 			List<Tag> listTagPerso = getAndAddTagPerso(tann.getTags());
 
 			//insert into annotation

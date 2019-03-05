@@ -52,11 +52,6 @@ public class SoundDAO implements ISoundDAO {
 				
 	}
 	
-	
-	
-	
-	
-	
 	private List<Tag> getTagsPertinent(Sound sound) {
 		
 		
@@ -65,37 +60,48 @@ public class SoundDAO implements ISoundDAO {
 	
 		try {
 			st2 = conn.createStatement();
-			String query = "SELECT tagperso, SUM(credibility_mark) AS pertinence\n" + 
+			String query = "SELECT tag, SUM(credibility_mark) AS pertinence\n" + 
 					"FROM "+tableAnno+" INNER JOIN "+tableUser+ " ON "+tableAnno+".author="+tableUser+".id_user\n" + 
-					"WHERE sound = '"+sound.getIdSound()+"'\n" + 
-					"GROUP BY tagperso\n" + 
+					"WHERE sound = '"+sound.getIdSound()+"' AND tag IS NOT NULL\n" + 
+					"GROUP BY tag\n" + 
 					"ORDER BY pertinence DESC;";
 			
 			rs2 = st2.executeQuery(query);
 			
 			List<Tag> listtags = new ArrayList<Tag>();
 			
-//			System.out.println("get tags!!!!");
-			
 			while(rs2.next()) {
 				
-				String tagId = rs2.getString("tagperso");
-//				System.out.println("!!!!!!!!!!!!!"+tagId);
+				String tagId = rs2.getString("tag");
 				
-				if(tagId!=null) {
+				if(tagId!=null && tagId!="") {
 					
 					Tag tag = new Tag(tagId);
-					
-//					System.out.println("!!!!!!!!!!!!!"+tag.toString());
-					
 					listtags.add(tag);
 				}
 			}
 			
-			if(listtags.size()<=NUM_TAGS) {
-				return listtags;
+			if(listtags.size() >= NUM_TAGS) {
+				return listtags.subList(0, NUM_TAGS);
 			} else {
-				return listtags.subList(0, NUM_TAGS-1);
+				
+				//there're not enough tags, we add default tags to make sure it has tags
+				switch(listtags.size()) {
+				case 0:
+					listtags.add(new Tag("Aircraft"));
+					listtags.add(new Tag("Human activity"));
+					listtags.add(new Tag("Silence"));
+					break;				
+//				case 1:
+//					listtags.add(new Tag("Aircraft"));
+//					listtags.add(new Tag("Human activity"));
+//					break;
+//				case 2:
+//					listtags.add(new Tag("Aircraft"));
+				default: 
+					//do nothing
+				}
+				return listtags;
 			}
 			
 		} catch (SQLException e) {
@@ -117,8 +123,8 @@ public class SoundDAO implements ISoundDAO {
 			st = conn.createStatement();
 			String query = "SELECT id_sound, url " 
 					+ "FROM "+tableSound
-					+ " LIMIT 10;";
-
+					+ " LIMIT 8;";
+			//if we want to get more sounds, modify the number of "LIMIT" in the query
 			
 			rs = st.executeQuery(query);
 			
@@ -127,16 +133,10 @@ public class SoundDAO implements ISoundDAO {
 			while(rs.next()) {
 				Sound sound = new Sound(rs.getString("id_sound"), rs.getString("url"));
 				
-				System.out.println(sound.toString());
-				
 				//get tags for this sound
 				List<Tag> listtags = getTagsPertinent(sound);
 				
-//				for(Tag tag:listtags) {
-//					System.out.println(tag);
-//				}
-				
-				if(!(null==listtags||listtags.isEmpty())) {
+				if(null!=listtags && !listtags.isEmpty()) {
 					sound.setTags(listtags);
 				}
 				listsound.add(sound);
