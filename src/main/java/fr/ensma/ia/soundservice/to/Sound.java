@@ -37,6 +37,6 @@ public class Sound {
 	
 	@Override
 	public String toString() {
-		return this.idSound;
+		return "id_sound:	"+this.idSound+",	url:	"+this.url;
 	}
 }
