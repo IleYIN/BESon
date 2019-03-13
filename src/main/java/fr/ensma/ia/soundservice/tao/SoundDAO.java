@@ -123,7 +123,7 @@ public class SoundDAO implements ISoundDAO {
 			st = conn.createStatement();
 			String query = "SELECT id_sound, url " 
 					+ "FROM "+tableSound
-					+ " LIMIT 8;";
+					+ " order by random()  LIMIT 10;";
 			//if we want to get more sounds, modify the number of "LIMIT" in the query
 			
 			rs = st.executeQuery(query);
