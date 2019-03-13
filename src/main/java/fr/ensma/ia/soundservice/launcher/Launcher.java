@@ -25,7 +25,9 @@ import fr.ensma.ia.soundservice.service.util.ThrowableExceptionMapper;
 import fr.ensma.ia.soundservice.util.ServerConfig;
 
 public class Launcher {
-    public static final String SERVER = "http://localhost/";
+//    public static final String SERVER = "http://localhost/";
+	public static final String SERVER = "http://193.55.163.218/";
+
     public static final int PORT = 9991;
     public static final URI BASE_URI = UriBuilder.fromUri(SERVER).port(PORT).build();
     
