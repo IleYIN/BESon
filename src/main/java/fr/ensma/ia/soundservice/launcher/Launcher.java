@@ -49,6 +49,7 @@ public class Launcher {
         validateConfig();
         
         ResourceConfig rc = new ResourceConfig();
+        rc.register(new CrossDomainFilter());
         rc.registerClasses(SoundService.class, ThrowableExceptionMapper.class);
         rc.property(LoggingFeature.LOGGING_FEATURE_LOGGER_LEVEL_SERVER, Level.WARNING.getName());
 
