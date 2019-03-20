@@ -63,6 +63,8 @@ public class SoundDAO implements ISoundDAO {
 			String query = "SELECT tag, SUM(credibility_mark) AS pertinence\n" + 
 					"FROM "+tableAnno+" INNER JOIN "+tableUser+ " ON "+tableAnno+".author="+tableUser+".id_user\n" + 
 					"WHERE sound = '"+sound.getIdSound()+"' AND tag IS NOT NULL\n" + 
+					 "AND tag != 'Idontknow'  AND tag != 'Nothing'\n" +  
+					//we don't want to get tags 'Idontknow' or 'Nothing' because on the interface, we already have button 'Nothing' and 'Idontknow'
 					"GROUP BY tag\n" + 
 					"ORDER BY pertinence DESC;";
 			
@@ -85,12 +87,12 @@ public class SoundDAO implements ISoundDAO {
 				return listtags.subList(0, NUM_TAGS);
 			} else {
 				
-				//there're not enough tags, we add default tags to make sure it has tags
+				//if there's no tags, we add default tags to make sure it has tags
 				switch(listtags.size()) {
 				case 0:
 					listtags.add(new Tag("Aircraft"));
 					listtags.add(new Tag("Human activity"));
-					listtags.add(new Tag("Silence"));
+					listtags.add(new Tag("Wind"));
 					break;				
 //				case 1:
 //					listtags.add(new Tag("Aircraft"));
